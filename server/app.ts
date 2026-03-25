@@ -7,7 +7,10 @@ const db = require("../server/db/database/database");
 app.use(express.json());
 
 app.get("/", (_req: Request, res: Response) => {
-  res.json({ status: "ok", message: "Random User Generator API" });
+  res.json({
+    status: "ok",
+    message: "Random User Generator API",
+  });
 });
 
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
