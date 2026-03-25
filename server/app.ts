@@ -1,4 +1,5 @@
 import express, { Request, Response, NextFunction } from "express";
+import { generateRandomUser } from "./src/utils/userGenerator";
 
 const app = express();
 
@@ -7,9 +8,11 @@ const db = require("../server/db/database/database");
 app.use(express.json());
 
 app.get("/", (_req: Request, res: Response) => {
+  const data = generateRandomUser();
   res.json({
     status: "ok",
     message: "Random User Generator API",
+    data: data,
   });
 });
 
