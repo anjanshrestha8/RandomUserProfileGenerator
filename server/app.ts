@@ -3,8 +3,6 @@ import { generateRandomUser } from "./src/utils/userGenerator";
 
 const app = express();
 
-const db = require("../server/db/database/database");
-
 app.use(express.json());
 
 app.get("/", (_req: Request, res: Response) => {

@@ -3,14 +3,22 @@ import { randomIntNumber, randomItem } from "./number";
 
 type Gender = "male" | "female";
 
+export interface Address {
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}
+
 export interface User {
-  firstName: string | "UserFirstName";
-  lastName: string | "UserLastName";
-  fullName: string | "UserFullNamex";
-  email: string | "";
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
   gender: Gender;
-  addressess: string | "USA";
-  age: number | 18;
+  addressess: Address;
+  age: number;
   profile_pic: string;
 }
 
@@ -20,11 +28,20 @@ export const generateRandomUser = (): User => {
     gender === "male" ? randomItem(maleNames) : randomItem(femaleNames);
 
   const [firstName, lastname] = fullName.split(" ");
-  const addressess = randomItem(addresses);
+  const rawAddress = randomItem(addresses);
   const age = randomIntNumber({ min: 10, max: 80 });
   const emailDomain = randomItem(emailDomains);
 
   const email = `${firstName}.${lastname}@${emailDomain}.com`;
+  const [street, city, stateZip] = rawAddress.split(",").map((s) => s.trim());
+  const [state, zip] = stateZip.split(" ");
+  const address: Address = {
+    street,
+    city,
+    state,
+    zip,
+    country: "USA",
+  };
 
   return {
     firstName: firstName,
@@ -32,7 +49,7 @@ export const generateRandomUser = (): User => {
     fullName: fullName,
     email: email,
     gender: gender,
-    addressess: addressess || "USA",
+    addressess: address,
     age: age,
     profile_pic: "",
   };
