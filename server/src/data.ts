@@ -4509,3 +4509,5 @@ export const emailDomains = [
   "protonmail",
   "icloud",
 ];
+
+export const MAX_LIMIT = 50;
