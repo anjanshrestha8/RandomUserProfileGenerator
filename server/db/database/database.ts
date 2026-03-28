@@ -22,4 +22,25 @@ const db = new sqlite3.Database(DB_PATH, (error) => {
   }
 });
 
+export function get<T>(
+  sql: string,
+  params: any[] = [],
+): Promise<T | undefined> {
+  return new Promise((resolve, reject) => {
+    db.get(sql, params, (err: any, row: T) => {
+      if (err) reject(err);
+      else resolve(row);
+    });
+  });
+}
+
+export function all<T>(sql: string, params: any[] = []): Promise<T[]> {
+  return new Promise((resolve, reject) => {
+    db.all(sql, params, (err: any, rows: T[]) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+}
+
 export default db;
