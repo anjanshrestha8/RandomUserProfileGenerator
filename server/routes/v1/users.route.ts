@@ -1,22 +1,12 @@
 import { Request, Response, Router } from "express";
-import { generateRandomUser } from "../../src/utils/userGenerator";
+import { getRandomUsers } from "../../db/database/randomUserProfile";
 import { MAX_LIMIT } from "../../src/data";
 
 const router = Router();
 
-router.get("/", (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
   const countQuery = req.query.count;
-
-  if (!countQuery) {
-    const user = generateRandomUser();
-    return res.json({
-      status: "success",
-      count: 1,
-      data: [user],
-    });
-  }
-
-  const count = Number(countQuery);
+  const count = countQuery ? Number(countQuery) : 1;
 
   if (!Number.isInteger(count) || count < 1 || count > MAX_LIMIT) {
     return res.status(400).json({
@@ -25,17 +15,14 @@ router.get("/", (req: Request, res: Response) => {
     });
   }
 
-  const data = [];
-
-  for (let i = 0; i < count; i++) {
-    data.push(generateRandomUser());
+  try {
+    const users = await getRandomUsers(count);
+    return res.json({ status: "success", count: users.length, data: users });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ status: "error", message: "Failed to fetch users" });
   }
-
-  res.json({
-    status: "success",
-    count: countQuery,
-    data,
-  });
 });
 
 export default router;
