@@ -1,5 +1,3 @@
-// server/db/seed/seedRandomUserProfile.ts
-
 import {
   maleNames,
   femaleNames,
