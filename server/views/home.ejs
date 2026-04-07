@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Random User Generator API</title>
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0f1117;
+      color: #c9d1d9;
+      line-height: 1.7;
+    }
+
+    a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ── Sidebar ── */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 240px;
+      height: 100vh;
+      background: #161b22;
+      border-right: 1px solid #30363d;
+      padding: 32px 20px;
+      overflow-y: auto;
+    }
+
+    nav .logo {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    nav .logo span {
+      color: #58a6ff;
+    }
+
+    nav ul {
+      list-style: none;
+    }
+
+    nav ul li {
+      margin-bottom: 4px;
+    }
+
+    nav ul li a {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      color: #8b949e;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    nav ul li a:hover {
+      background: #21262d;
+      color: #f0f6fc;
+      text-decoration: none;
+    }
+
+    nav .section-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #484f58;
+      padding: 16px 10px 6px;
+    }
+
+    /* ── Main ── */
+    main {
+      margin-left: 240px;
+      padding: 56px 64px;
+      max-width: 900px;
+    }
+
+    section {
+      padding-top: 48px;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #f0f6fc;
+      margin-bottom: 12px;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #f0f6fc;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #21262d;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #e6edf3;
+      margin: 20px 0 8px;
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: #8b949e;
+    }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    .badge-get {
+      background: #1f4068;
+      color: #58a6ff;
+      border: 1px solid #1c6fba;
+    }
+
+    .badge-v {
+      background: #1a2e1a;
+      color: #3fb950;
+      border: 1px solid #238636;
+    }
+
+    /* ── Endpoint cards ── */
+    .endpoint {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .endpoint code.path {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.95rem;
+      color: #f0f6fc;
+    }
+
+    /* ── Params table ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+      margin-top: 12px;
+      margin-bottom: 4px;
+    }
+
+    thead th {
+      text-align: left;
+      padding: 8px 12px;
+      background: #21262d;
+      color: #8b949e;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tbody td {
+      padding: 8px 12px;
+      border-top: 1px solid #21262d;
+      color: #c9d1d9;
+      vertical-align: top;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      background: #21262d;
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      color: #79c0ff;
+    }
+
+    /* ── Code blocks ── */
+    pre {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      margin: 12px 0 20px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: #e6edf3;
+      font-size: inherit;
+    }
+
+    /* ── Error table ── */
+    .error-row td:first-child code {
+      color: #f85149;
+      background: #2d1117;
+    }
+
+    /* ── Info cards ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .info-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .info-card .label {
+      font-size: 0.75rem;
+      color: #8b949e;
+      margin-bottom: 4px;
+    }
+
+    .info-card .value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+
+    /* ── Alert box ── */
+    .alert {
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 0.875rem;
+      border-left: 4px solid;
+    }
+
+    .alert-info {
+      background: #0d1117;
+      border-color: #1c6fba;
+      color: #58a6ff;
+    }
+
+    .alert-warn {
+      background: #161008;
+      border-color: #9e6a03;
+      color: #d29922;
+    }
+
+    /* ── Footer ── */
+    footer {
+      margin-top: 80px;
+      padding: 24px 0;
+      border-top: 1px solid #21262d;
+      font-size: 0.8rem;
+      color: #484f58;
+    }
+
+    footer a {
+      color: #484f58;
+    }
+
+    footer a:hover {
+      color: #8b949e;
+    }
+
+    /* ── Social links ── */
+    .social-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .social-links a {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #484f58;
+      font-size: 0.8rem;
+      transition: color 0.15s;
+    }
+
+    .social-links a:hover {
+      color: #c9d1d9;
+      text-decoration: none;
+    }
+
+    .social-links svg {
+      width: 16px;
+      height: 16px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <nav>
+    <div class="logo">&#127774; <span>RUG</span> API</div>
+    <ul>
+      <li class="section-label">Getting Started</li>
+      <li><a href="#introduction">Introduction</a></li>
+      <li><a href="#base-url">Base URL</a></li>
+      <li><a href="#how-to-use">How to Use</a></li>
+
+      <li class="section-label">Endpoints</li>
+      <li><a href="#get-users">GET /users</a></li>
+      <li><a href="#get-user-by-id">GET /users/:id</a></li>
+      <li><a href="#health">GET /health</a></li>
+
+      <li class="section-label">Reference</li>
+      <li><a href="#user-schema">User Schema</a></li>
+      <li><a href="#multiple-users">Multiple Users</a></li>
+      <li><a href="#error-handling">Error Handling</a></li>
+      <li><a href="#rate-limiting">Rate Limiting</a></li>
+      <li><a href="#seeding">Seeding the DB</a></li>
+      <li><a href="#swagger">Interactive Docs</a></li>
+    </ul>
+  </nav>
+
+  <!-- ═══════════════ MAIN ═══════════════ -->
+  <main>
+
+    <!-- INTRO -->
+    <section id="introduction">
+      <h1>Random User Generator API</h1>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="label">Version</div>
+          <div class="value">v1.0.0</div>
+        </div>
+        <div class="info-card">
+          <div class="label">Environment</div>
+          <div class="value">
+            <%= env %>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="label">Max per request</div>
+          <div class="value">
+            <%= maxUsers %>
+          </div>
+        </div>
+        <div class="info-card">
+          <div class="label">Rate limit</div>
+          <div class="value">
+            <%= rateLimit %> / min
+          </div>
+        </div>
+      </div>
+      <p>
+        The <strong>Random User Generator API</strong> returns realistic, randomly selected user profiles from
+        a pre-seeded SQLite database. It is ideal for prototyping, UI mockups, testing, and demo data.
+      </p>
+      <p>All responses are JSON. No authentication is required.</p>
+    </section>
+
+    <!-- BASE URL -->
+    <section id="base-url">
+      <h2>Base URL</h2>
+      <pre><code>http://localhost:<%= port %>/api/v1</code></pre>
+      <p>All API endpoints are prefixed with <code>/api/v1</code>.</p>
+    </section>
+
+    <!-- HOW TO USE -->
+    <section id="how-to-use">
+      <h2>How to Use</h2>
+      <p>Send plain HTTP <code>GET</code> requests — no API key, no request body, no special headers needed.</p>
+
+      <h3>Using curl</h3>
+      <pre><code># One random user
+curl http://localhost:<%= port %>/api/v1/users
+
+# Five random users
+curl "http://localhost:<%= port %>/api/v1/users?count=5"
+
+# User with ID 42
+curl http://localhost:<%= port %>/api/v1/users/42</code></pre>
+
+      <h3>Using fetch (JavaScript)</h3>
+      <pre><code>const res = await fetch('http://localhost:<%= port %>/api/v1/users?count=3');
+const { data } = await res.json();
+console.log(data); // RandomUserProfile[]</code></pre>
+
+      <h3>Using axios</h3>
+      <pre><code>const { data } = await axios.get('/api/v1/users', { params: { count: 5 } });
+console.log(data.data); // RandomUserProfile[]</code></pre>
+    </section>
+
+    <!-- GET /users -->
+    <section id="get-users">
+      <h2>GET /users</h2>
+      <p>Returns one or more randomly selected user profiles.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="badge badge-get">GET</span>
+          <span class="badge badge-v">v1</span>
+          <code class="path">/api/v1/users</code>
+        </div>
+
+        <h3>Query Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>count</code></td>
+              <td>integer</td>
+              <td>1</td>
+              <td>Number of users to return. Must be between 1 and <%= maxUsers %>.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Example Response</h3>
+        <pre><code>{
+  "status": "success",
+  "count": 1,
+  "data": [
+    {
+      "id": 7,
+      "first_name": "Jane",
+      "last_name": "Doe",
+      "email": "jane.doe@example.com",
+      "gender": "female",
+      "age": 28,
+      "street": "123 Main St",
+      "city": "Springfield",
+      "state": "IL",
+      "zip": "62701",
+      "profile_pic": "https://example.com/pic.jpg",
+      "created_at": "2026-03-28T10:00:00.000Z"
+    }
+  ]
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- GET /users/:id -->
+    <section id="get-user-by-id">
+      <h2>GET /users/:id</h2>
+      <p>Returns a single user profile by their exact database ID.</p>
+
+      <div class="endpoint">
+        <div class="endpoint-header">
+          <span class="badge badge-get">GET</span>
+          <span class="badge badge-v">v1</span>
+          <code class="path">/api/v1/users/:id</code>
+        </div>
+
+        <h3>Path Parameters</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter</th>
+              <th>Type</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>id</code></td>
+              <td>integer</td>
+              <td>The user's ID. Must be a positive integer.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Example Response</h3>
+        <pre><code>{
+  "status": "success",
+  "data": {
+    "id": 42,
+    "first_name": "John",
+    "last_name": "Smith",
+    ...
+  }
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- GET /health -->
+    <section id="health">
+      <h2>GET /health</h2>
+      <p>Lightweight liveness check. Returns <code>200</code> when the server is up.</p>
+      <pre><code>curl http://localhost:<%= port %>/api/v1/health</code></pre>
+    </section>
+
+    <!-- USER SCHEMA -->
+    <section id="user-schema">
+      <h2>User Schema</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>integer</td>
+            <td>Auto-incremented primary key</td>
+          </tr>
+          <tr>
+            <td><code>first_name</code></td>
+            <td>string</td>
+            <td>First name</td>
+          </tr>
+          <tr>
+            <td><code>last_name</code></td>
+            <td>string</td>
+            <td>Last name</td>
+          </tr>
+          <tr>
+            <td><code>email</code></td>
+            <td>string</td>
+            <td>Unique email address</td>
+          </tr>
+          <tr>
+            <td><code>gender</code></td>
+            <td>string</td>
+            <td><code>male</code> or <code>female</code></td>
+          </tr>
+          <tr>
+            <td><code>age</code></td>
+            <td>integer</td>
+            <td>Age in years</td>
+          </tr>
+          <tr>
+            <td><code>street</code></td>
+            <td>string</td>
+            <td>Street address</td>
+          </tr>
+          <tr>
+            <td><code>city</code></td>
+            <td>string</td>
+            <td>City</td>
+          </tr>
+          <tr>
+            <td><code>state</code></td>
+            <td>string</td>
+            <td>State abbreviation (e.g. <code>CA</code>)</td>
+          </tr>
+          <tr>
+            <td><code>zip</code></td>
+            <td>string</td>
+            <td>ZIP / postal code</td>
+          </tr>
+          <tr>
+            <td><code>profile_pic</code></td>
+            <td>string</td>
+            <td>URL to profile picture</td>
+          </tr>
+          <tr>
+            <td><code>created_at</code></td>
+            <td>string (ISO 8601)</td>
+            <td>Record creation timestamp</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- MULTIPLE USERS -->
+    <section id="multiple-users">
+      <h2>Multiple Users</h2>
+      <p>
+        Pass the <code>count</code> query parameter to receive up to <strong>
+          <%= maxUsers %>
+        </strong> users in a single call.
+        The users are selected randomly from the database on every request.
+      </p>
+      <pre><code>GET /api/v1/users?count=10</code></pre>
+
+      <div class="alert alert-info">
+        Each call returns a different random set — results are <strong>not paginated</strong> and the order is
+        non-deterministic.
+      </div>
+
+      <h3>Response envelope</h3>
+      <pre><code>{
+  "status": "success",
+  "count": 10,      // actual number of records returned
+  "data": [ ... ]   // array of RandomUserProfile objects
+}</code></pre>
+
+      <div class="alert alert-warn">
+        If the database has fewer records than requested, the response will contain all available records and
+        <code>count</code> will reflect the actual number returned.
+      </div>
+    </section>
+
+    <!-- ERROR HANDLING -->
+    <section id="error-handling">
+      <h2>Error Handling</h2>
+      <p>All errors follow a consistent JSON shape:</p>
+      <pre><code>{
+  "status": "error",
+  "code": "NOT_FOUND",
+  "message": "User with id 999 not found."
+}</code></pre>
+
+      <table>
+        <thead>
+          <tr>
+            <th>HTTP Status</th>
+            <th>Code</th>
+            <th>When it occurs</th>
+          </tr>
+        </thead>
+        <tbody class="error-rows">
+          <tr class="error-row">
+            <td><code>400</code></td>
+            <td><code>BAD_REQUEST</code></td>
+            <td><code>count</code> is out of range or <code>id</code> is not a positive integer</td>
+          </tr>
+          <tr class="error-row">
+            <td><code>404</code></td>
+            <td><code>NOT_FOUND</code></td>
+            <td>No user found for the given <code>id</code></td>
+          </tr>
+          <tr class="error-row">
+            <td><code>404</code></td>
+            <td><code>NOT_FOUND</code></td>
+            <td>Route does not exist</td>
+          </tr>
+          <tr class="error-row">
+            <td><code>429</code></td>
+            <td>—</td>
+            <td>Rate limit exceeded</td>
+          </tr>
+          <tr class="error-row">
+            <td><code>500</code></td>
+            <td><code>INTERNAL_ERROR</code></td>
+            <td>Unexpected server / database error</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- RATE LIMITING -->
+    <section id="rate-limiting">
+      <h2>Rate Limiting</h2>
+      <p>
+        The <code>/api/v1/users</code> endpoints are protected by a rate limiter.
+        Exceeding the limit returns <code>HTTP 429</code>.
+      </p>
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="label">Window</div>
+          <div class="value">1 minute</div>
+        </div>
+        <div class="info-card">
+          <div class="label">Max requests</div>
+          <div class="value">
+            <%= rateLimit %>
+          </div>
+        </div>
+      </div>
+      <p>
+        Rate limit headers are included in every response under <code>RateLimit-*</code> (RFC 6585 standard headers).
+      </p>
+    </section>
+
+    <!-- SEEDING -->
+    <section id="seeding">
+      <h2>Seeding the Database</h2>
+      <p>
+        The database ships empty. Run the seed script once to populate it with randomly generated user profiles
+        before making requests.
+      </p>
+      <pre><code># From the server/ directory
+npm run seed</code></pre>
+      <p>
+        The seed script inserts a batch of pre-generated profiles into the <code>randomUserProfile</code> table.
+        Re-running it appends more records rather than replacing existing ones.
+      </p>
+
+      <h3>Run migrations first</h3>
+      <pre><code># Apply all pending migrations (creates the tables)
+npm run migrate
+
+# Then seed
+npm run seed</code></pre>
+
+      <div class="alert alert-info">
+        Migrations use <strong>db-migrate</strong> and are stored in <code>server/migrations/</code>.
+        Each migration file is timestamped and idempotent.
+      </div>
+    </section>
+
+    <!-- SWAGGER -->
+    <section id="swagger">
+      <h2>Interactive Docs (Swagger UI)</h2>
+      <p>
+        A full interactive API explorer is available. You can try every endpoint directly from your browser
+        without writing any code.
+      </p>
+      <p>
+        <a href="/swagger" target="_blank">&#8599; Open Swagger UI &rarr;</a>
+      </p>
+      <pre><code>http://localhost:<%= port %>/swagger</code></pre>
+    </section>
+
+    <footer>
+      <div>
+        Random User Generator API &mdash; v1.0.0 &nbsp;|&nbsp;
+        <a href="/swagger">Swagger UI</a> &nbsp;|&nbsp;
+        <a href="/api/v1/health">Health check</a>
+      </div>
+      <div class="social-links">
+        <!-- GitHub -->
+        <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577
+            0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755
+            -1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305
+            3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93
+            0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176
+            0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405
+            1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23
+            .645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22
+            0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22
+            0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57
+            C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
+          </svg>
+          GitHub
+        </a>
+        <!-- X / Twitter -->
+        <a href="https://x.com" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744
+            l7.737-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622Zm-1.161 17.52h1.833L7.084 4.126H5.117Z" />
+          </svg>
+          X
+        </a>
+        <!-- LinkedIn -->
+        <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136
+            1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85
+            3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062
+            0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782
+            13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0
+            1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24
+            22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+          </svg>
+          LinkedIn
+        </a>
+        <!-- npm -->
+        <a href="https://npmjs.com" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0 0v24h24V0H0zm19.2 19.2H4.8V4.8h14.4v14.4zm-2.4-2.4h-2.4v-9.6H12v9.6H7.2V7.2h9.6v9.6z" />
+          </svg>
+          npm
+        </a>
+      </div>
+
+  </main>
+</body>
+
+</html>

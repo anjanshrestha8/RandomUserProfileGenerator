@@ -15,16 +15,27 @@ export interface RandomUserProfile {
   created_at: string;
 }
 
-export const getRandomUsers = (count: number): Promise<RandomUserProfile[]> => {
+export const getRandomUsersById = (
+  randomIds: number[],
+): Promise<RandomUserProfile[]> => {
   return new Promise((resolve, reject) => {
-    db.all(
-      "SELECT * FROM randomUserProfile ORDER BY RANDOM() LIMIT ?",
-      [count],
-      (err, rows) => {
-        if (err) reject(err);
-        else resolve(rows as RandomUserProfile[]);
-      },
-    );
+    const placeholders = randomIds.map(() => "?").join(", ");
+    const query = `SELECT * FROM randomUserProfile WHERE id IN (${placeholders})`;
+
+    db.all(query, randomIds, (err, rows) => {
+      console.log(randomIds);
+      if (err) reject(err);
+      else resolve(rows as RandomUserProfile[]);
+    });
+  });
+};
+
+export const getUserById = (id: number): Promise<RandomUserProfile | null> => {
+  return new Promise((resolve, reject) => {
+    db.get("SELECT * FROM randomUserProfile WHERE id = ?", [id], (err, row) => {
+      if (err) reject(err);
+      else resolve(row ? (row as RandomUserProfile) : null);
+    });
   });
 };
 
