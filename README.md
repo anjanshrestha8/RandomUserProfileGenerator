@@ -188,10 +188,6 @@ RATE_LIMIT_MAX_REQUESTS=100
 3. Push to the branch
 4. Open a pull request
 
-## License
-
-MIT
-
 ## Support
 
 For issues and questions, please open an issue on the repository.
